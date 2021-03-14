@@ -32,3 +32,5 @@ if __name__ == '__main__':
                                     os.rename(os.path.join(dirPath, fileName), os.path.join(dirPath, responseJson['results'][0]['trackName'].replace('/', ' ').replace(':', ' ').replace('-', ' ').replace('|', ' ').replace('&', ' ') + '.png'))
                                 except:
                                     print(f"[ERROR - SKIPPING] Failed to rename {fileName} to {responseJson['results'][0]['trackName'] + '.png'} in {dirPath}")
+                        else:
+                            print(f"[ERROR - SKIPPING] BundleID {name} not found on Apple's Lookup Website")
