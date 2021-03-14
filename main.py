@@ -2,6 +2,7 @@ import sys
 import os
 import requests
 import json
+import re
 
 if __name__ == '__main__':
     if len(sys.argv) < 2 or len(sys.argv) > 2:
@@ -16,8 +17,9 @@ if __name__ == '__main__':
     
     for (dirPath, _, fileNames) in os.walk(folderPath):
         for fileName in fileNames:
-            name = fileName.replace('.png', '')
-            if '.' in name:
+            groups = re.match("([0-9A-z]+\.[0-9A-z]+\.[0-9A-z]+)", fileName).groups()
+            if len(groups) > 0:
+                name=groups[0]
                 response = requests.get(f'https://itunes.apple.com/lookup/?bundleId={name}')
                 if response.status_code == 200:
                     responseJson = json.loads(response.content.decode('utf-8'))
