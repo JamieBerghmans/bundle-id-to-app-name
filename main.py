@@ -3,6 +3,7 @@ import os
 import requests
 import json
 import re
+from countries import countriesList
 
 if __name__ == '__main__':
     if len(sys.argv) < 2 or len(sys.argv) > 2:
@@ -23,14 +24,19 @@ if __name__ == '__main__':
                 groups = match.groups()
                 if len(groups) > 0:
                     name=groups[0]
-                    response = requests.get(f'https://itunes.apple.com/lookup/?bundleId={name}')
-                    if response.status_code == 200:
-                        responseJson = json.loads(response.content.decode('utf-8'))
-                        if int(responseJson["resultCount"]) > 0:
+                    for country in countriesList:
+                        response = requests.get(f'https://itunes.apple.com/lookup/?bundleId={name}&country={country.lower()}')
+                        if response.status_code == 200:
+                            responseJson = json.loads(response.content.decode('utf-8'))
+                            if int(responseJson["resultCount"]) > 0:
                                 print(f"Renaming {fileName} to {responseJson['results'][0]['trackName'] + '.png'} in {dirPath}")
                                 try:
                                     os.rename(os.path.join(dirPath, fileName), os.path.join(dirPath, responseJson['results'][0]['trackName'].replace('/', ' ').replace(':', ' ').replace('-', ' ').replace('|', ' ').replace('&', ' ') + '.png'))
                                 except:
                                     print(f"[ERROR - SKIPPING] Failed to rename {fileName} to {responseJson['results'][0]['trackName'] + '.png'} in {dirPath}")
-                        else:
-                            print(f"[ERROR - SKIPPING] BundleID {name} not found on Apple's Lookup Website")
+                                break
+                            else:
+                                if "apple" in name:
+                                    break
+                                else:
+                                    print(f"[ERROR - SKIPPING] BundleID {name} not found on Apple's Lookup Website (Country: {country}). Trying next country")
