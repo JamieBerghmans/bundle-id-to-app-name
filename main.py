@@ -18,7 +18,7 @@ if __name__ == '__main__':
     for (dirPath, _, fileNames) in os.walk(folderPath):
         for fileName in fileNames:
             newName = fileName.replace('.png', '')
-            match = re.match("([0-9A-z-]+\.[0-9A-z-]+(\.[0-9A-z-]+){0,2})", newName)
+            match = re.match("([0-9A-z-]+\.[0-9A-z-]+(\.[0-9A-z-]+){0,})", newName)
             if match != None:
                 groups = match.groups()
                 if len(groups) > 0:
