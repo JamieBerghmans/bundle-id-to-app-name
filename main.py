@@ -17,9 +17,10 @@ if __name__ == '__main__':
     
     for (dirPath, _, fileNames) in os.walk(folderPath):
         for fileName in fileNames:
-            match = re.match("([0-9A-z]+\.[0-9A-z]+\.[0-9A-z]+)", fileName)
+            newName = fileName.replace('.png', '')
+            match = re.match("([0-9A-z]+\.[0-9A-z]+\.[0-9A-z]+(\.[0-9A-z]+)?)", newName)
             if match != None:
-                groups = re.match("([0-9A-z]+\.[0-9A-z]+\.[0-9A-z]+)", fileName).groups()
+                groups = match.groups()
                 if len(groups) > 0:
                     name=groups[0]
                     response = requests.get(f'https://itunes.apple.com/lookup/?bundleId={name}')
