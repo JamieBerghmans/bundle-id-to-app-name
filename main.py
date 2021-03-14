@@ -28,4 +28,4 @@ if __name__ == '__main__':
                         responseJson = json.loads(response.content.decode('utf-8'))
                         if int(responseJson["resultCount"]) > 0:
                                 print(f"Renaming {fileName} to {responseJson['results'][0]['trackName'] + '.png'} in {dirPath}")
-                                os.rename(os.path.join(dirPath, fileName), os.path.join(dirPath, re.sub(r'[^0-9A-Za-z]', ' ', responseJson['results'][0]['trackName']) + '.png'))
+                                os.rename(os.path.join(dirPath, fileName), os.path.join(dirPath, responseJson['results'][0]['trackName'].replace('/', ' ').replace(':', ' ').replace('-', ' ').replace('|', ' ').replace('&', ' ') + '.png'))
