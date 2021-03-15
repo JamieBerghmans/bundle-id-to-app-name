@@ -45,7 +45,7 @@ class Main():
                                     else:
                                         if self.shouldSkip or "apple" in name:
                                             self.shouldSkip = False
-                                            print('[ERROR - SKIPPING] BundleID not found. Going onto the next one')
+                                            print(f'[ERROR - SKIPPING] BundleID {name} not found. Going onto the next one')
                                             break
                                         else:
                                             print(f"[ERROR - SKIPPING] BundleID {name} not found on Apple's Lookup Website (Country: {country}). Trying next country")
