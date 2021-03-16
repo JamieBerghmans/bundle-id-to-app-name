@@ -5,17 +5,28 @@ import json
 import re
 from countries import countriesList
 from threading import Thread
-import keyboard
 import time
+import curses
+import sys
+import signal
 
 class Main():
     shouldSkip = False
     done = False
-    
+    window = None
+
     def __init__(self):
         self.shouldSkip = False
         self.done = False
+
+    def run(self, window):
+        self.window = window
+        window.scrollok(1)
+        window.timeout(1)
+
         Thread(target=self.handleKeyPressLoop, args=()).start()
+
+        window.addstr('Starting...\n')
 
         folderPath = sys.argv[1]
         if not folderPath.startswith('\\') and not folderPath.startswith('/'):
@@ -36,36 +47,41 @@ class Main():
                                 responseJson = json.loads(response.content.decode('utf-8'))
                                 if not self.done:
                                     if int(responseJson["resultCount"]) > 0:
-                                        print(f"Renaming {fileName} to {responseJson['results'][0]['trackName'] + '.png'} in {dirPath}")
+                                        self.window.addstr(f"Renaming {fileName} to {responseJson['results'][0]['trackName'] + '.png'} in {dirPath}\n")
                                         try:
                                             os.rename(os.path.join(dirPath, fileName), os.path.join(dirPath, responseJson['results'][0]['trackName'].replace('/', ' ').replace(':', ' ').replace('-', ' ').replace('|', ' ').replace('&', ' ') + '.png'))
                                         except:
-                                            print(f"[ERROR - SKIPPING] Failed to rename {fileName} to {responseJson['results'][0]['trackName'] + '.png'} in {dirPath}")
+                                            self.window.addstr(f"[ERROR - SKIPPING] Failed to rename {fileName} to {responseJson['results'][0]['trackName'] + '.png'} in {dirPath}\n")
                                         break
                                     else:
                                         if self.shouldSkip or "apple" in name:
                                             self.shouldSkip = False
-                                            print(f'[ERROR - SKIPPING] BundleID {name} not found. Going onto the next one')
+                                            self.window.addstr(f'[ERROR - SKIPPING] BundleID {name} not found. Going onto the next one\n')
                                             break
                                         else:
-                                            print(f"[ERROR - SKIPPING] BundleID {name} not found on Apple's Lookup Website (Country: {country}). Trying next country")
+                                            self.window.addstr(f'[ERROR - SKIPPING] BundleID {name} not found on Apple\'s Lookup Website (Country: {country}). Trying next country\n')
+                            
 
         self.done = True
 
     def setDoneFlag(self):
-        print('CTRL+C detected, quitting')
+        self.window.addstr('CTRL+C detected, quitting')
         self.done = True
+        curses.endwin()
+        os._exit(0)
 
     def handleKeyPressLoop(self):
         keyAlreadyPressed = False
-        keyboard.add_hotkey('ctrl+c', lambda: self.setDoneFlag())
 
         while not self.done:
-            if keyboard.is_pressed("space"):
+            key = self.window.getch()
+            if key == 32:
                 if not keyAlreadyPressed:
                     self.shouldSkip = True
                     keyAlreadyPressed = True
                     time.sleep(0.1)
+            elif key == 3:
+                self.setDoneFlag()
             else:
                 if keyAlreadyPressed:
                     keyAlreadyPressed = False
@@ -78,5 +94,6 @@ if __name__ == '__main__':
         done = True
         sys.exit(1)
 
-    print('If key presses to skip don\'t work, you might have to run this scrip as root.')
     main = Main()
+    curses.wrapper(main.run)
+    curses.echo()
